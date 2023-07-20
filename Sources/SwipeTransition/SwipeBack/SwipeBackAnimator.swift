@@ -11,6 +11,7 @@ import UIKit
 final class SwipeBackAnimator: NSObject {
     private weak var parent: SwipeBackController!
     private weak var toView: UIView?
+    private weak var fromView: UIView?
     required init(parent: SwipeBackController) {
         super.init()
         self.parent = parent
@@ -27,6 +28,7 @@ extension SwipeBackAnimator: UIViewControllerAnimatedTransitioning {
             let from = transitionContext.viewController(forKey: .from) else { return }
         transitionContext.containerView.insertSubview(to.view, belowSubview: from.view)
         toView = to.view
+        fromView = from.view
 
         // parallax effect
         to.view.transform.tx = -transitionContext.containerView.bounds.width * SwipeBackConfiguration.shared.parallaxFactor
@@ -57,6 +59,13 @@ extension SwipeBackAnimator: UIViewControllerAnimatedTransitioning {
     func animationEnded(_ transitionCompleted: Bool) {
         if !transitionCompleted {
             toView?.transform = .identity
+            
+            // A workaround for the strange issue where fromView's user interaction
+            // is abnormally disabled after swipe back cancellation.
+            if let fromView, let superview = fromView.superview {
+                fromView.removeFromSuperview()
+                superview.addSubview(fromView)
+            }
         }
     }
 }
