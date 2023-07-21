@@ -1,3 +1,7 @@
+# !!! The `main` branch is not maintained. For Reclip, use the `reclip` branch. !!!
+
+-----
+
 ![logotype-a](https://github.com/Tobaloidee/SwipeTransition/blob/master/docs/assets/logotype-a.png)
 ===
 
