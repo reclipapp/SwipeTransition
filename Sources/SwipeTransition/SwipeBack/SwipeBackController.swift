@@ -118,16 +118,30 @@ extension SwipeBackController: UIGestureRecognizerDelegate {
     }
 }
 
+extension SwipeBackController {
+    
+    /// iOS 17 introduced a bug where an interactive swipe transition from a NavBar hidden view to NavBar visible view
+    /// causes further navigation to be broken. The bug was fixed in iOS 17.0.3.
+    var canInteractivelySwipeBack: Bool {
+        if #available(iOS 17.0.3, *) {
+            return true
+        }
+        if #available(iOS 17, *) {
+            return false
+        }
+        return true
+    }
+}
+
 extension SwipeBackController: UINavigationControllerDelegate {
+    
+    
+    
     public func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
 
-        if #available(iOS 17, *) {
-            // In iOS 17, for some reason, an interactive swipe-back transition from a NavBar hidden view to a NavBar
-            // visible view seems to put `UINavigationController` in a weird state where it can't properly preform any
-            // further navigations (push/pop).
-            // By returning `nil` from here, we make this swipe-back transition non-interactive. i.e., in iOS 17, we
-            // pop the `fromVC` immediately when a swipe back gesture has started.
-            // This will be further investigted: https://linear.app/reclip/issue/R-3969
+        guard canInteractivelySwipeBack else {
+            // By returning `nil` from here, we make this swipe-back transition non-interactive.
+            // i.e., pop the `fromVC` immediately when a swipe back gesture has started.
             return nil
         }
 
